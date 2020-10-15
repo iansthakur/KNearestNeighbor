@@ -58,7 +58,7 @@ def loadData(given):
 
 #unclassified is the .txt file of data that needs to be classified
 #classified is the .data file of data that has already been classified
-def classifyData(unclassified, classified):
+def classifyData(unclassified, classified,k):
 	allPoints = loadData(classified)
 	data = loadData(unclassified)
 	# print allPoints
@@ -66,7 +66,7 @@ def classifyData(unclassified, classified):
 	# # allPoints = classified
 	# data = unclassified
 	for point in data:
-		findNN(point, allPoints)
+		findNN(point, allPoints,k)
 
 	print("done")
 
@@ -82,46 +82,48 @@ def generateList(a, b, c, d):
 #newPoint is the list of data points of the data that needs to be categorized
 #oldPoint is the list of data points of the already classified data
 #classifies the newPoint by its nearest neighbor
-def findNN(newPoint, allPoints):
+def findNN(newPoint, allPoints,k):
 	redCount = 0
 	greenCount = 0
 	error = 0
+	# counter = 0
 	lastElementIndex = len(newPoint)-1
-	print("length is ", lastElementIndex)
-	print newPoint
-	holdMin = calcDistance(newPoint,allPoints[0])
+	dist = []
+	# print("length is ", lastElementIndex)
+	# print newPoint
+	# holdMin = calcDistance(newPoint,allPoints[0])
 	for current in allPoints:
 		trial = calcDistance(newPoint, current)
+		# print trial
 		if trial<0:
 			error+=1
 			# print "hi :)"
 			# error = True
 			# break;
-		elif (trial<holdMin):
-			holdMin = trial
-			if(current[lastElementIndex] == 2):
-				redCount = 1
-				greenCount = 0
-			else:
-				redCount = 0
-				greenCount = 1
-		elif (trial == holdMin):
-			if(current[lastElementIndex] == 2):
-				redCount += 1
-			else:
-				greenCount += 1
-	# print("greenCount is: ")
-	# print greenCount
-	# print("redCount is: ")
-	# print redCount
-	# print error
+		else:
+			# print counter
+			dist.append((trial,current[lastElementIndex]))
+			# counter+=1
+	# print dist
+	# print "doing something"
+	dist.sort(key=lambda x:x[0])
+	# print dist
+
+	if not len(dist) < 3:
+		for i in range (k):
+			# print dist
+			# print i
+			if dist[i][1] == 2 :
+				redCount+=1
+			else :
+				greenCount+=1
 
 	#if you wanted me to write to the file, i would do that here
 	#i have opted to just print it out 
 	if redCount > greenCount:
 		print (newPoint[0], " is benign")
-	# elif error:
-	# 	print (newPoint[0], " is not formatted correctly")
+	elif redCount == greenCount:
+		print ("There was an error processing ", newPoint[0])
 	else:
 		print (newPoint[0], " is malignant")
 
@@ -142,10 +144,15 @@ originalData = input()
 # print originalData
 print("Input new data file name as '<FileName>' : ")
 testingFile = input()
+print("what value of k")
+k = input()
 # originalData = "breast-cancer-wisconsin.data"
 # testingFile = "TestingFile.csv"
+# originalData = 'original.data'
+# testingFile = 'test2.csv'
+# k=3
 #calcDistance(a,b)
 #findNN(a,b)
 #classifyData(a,b)
 #alreadyClassified = loadData("breast-cancer-wisconsin.data")
-classifyData(testingFile, originalData)
+classifyData(testingFile, originalData,k)
